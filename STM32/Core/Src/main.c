@@ -197,14 +197,17 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LED_RED_Pin|EN0_Pin|EN1_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, DOT_Pin|LED_RED_Pin|EN0_Pin|EN1_Pin
+                          |EN2_Pin|EN3_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
                           |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : LED_RED_Pin EN0_Pin EN1_Pin */
-  GPIO_InitStruct.Pin = LED_RED_Pin|EN0_Pin|EN1_Pin;
+  /*Configure GPIO pins : DOT_Pin LED_RED_Pin EN0_Pin EN1_Pin
+                           EN2_Pin EN3_Pin */
+  GPIO_InitStruct.Pin = DOT_Pin|LED_RED_Pin|EN0_Pin|EN1_Pin
+                          |EN2_Pin|EN3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -288,26 +291,53 @@ void display7SEG(int state){
         }
 }
 
-int counter = 50;
-int led = 0;
+// set thoi gian cho led 7 doan
+int counter1 = 50;
+// set thoi gian cho two leds
+int counter2 = 100;
+// set trang thai cho led 7 doan
+int led7seg_status= 0;
 void HAL_TIM_PeriodElapsedCallback ( TIM_HandleTypeDef * htim ){
-	counter--;
-	if (counter<=0){
-		counter = 50;
-		if(led == 0){
-			//led7seg 1 bat, led7seg 2 tat
+	counter1--;
+	counter2--;
+	if(counter2<=0){
+		HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
+		counter2=100;
+	}
+	if (counter1<=0){
+		counter1 = 50;
+		if(led7seg_status == 0){
+			// Trang thai led7segment1: bat ; led7segment2, 3, 4: tat
 			HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, 0);
 			HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, 1);
+			HAL_GPIO_WritePin(EN2_GPIO_Port, EN2_Pin, 1);
+			HAL_GPIO_WritePin(EN3_GPIO_Port, EN3_Pin, 1);
 			display7SEG(1);
 		}
-		if(led == 1) {
-			//led7seg 1 tat, led7seg 2 bat
+		if(led7seg_status == 1) {
 			HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, 1);
 			HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, 0);
+			HAL_GPIO_WritePin(EN2_GPIO_Port, EN2_Pin, 1);
+			HAL_GPIO_WritePin(EN3_GPIO_Port, EN3_Pin, 1);
 			display7SEG(2);
 		}
-		//chuyen doi trang thai cua led7seg
-		led = 1 - led;
+		if(led7seg_status == 2) {
+			HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, 1);
+			HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, 1);
+			HAL_GPIO_WritePin(EN2_GPIO_Port, EN2_Pin, 0);
+			HAL_GPIO_WritePin(EN3_GPIO_Port, EN3_Pin, 1);
+			display7SEG(3);
+		}
+		if(led7seg_status == 3) {
+			HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, 1);
+			HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, 1);
+			HAL_GPIO_WritePin(EN2_GPIO_Port, EN2_Pin, 1);
+			HAL_GPIO_WritePin(EN3_GPIO_Port, EN3_Pin, 0);
+			display7SEG(0);
+		}
+		// doi trang thai cua led 7 doan
+		led7seg_status ++;
+		if(led7seg_status >= 4) led7seg_status = 0;
 	}
 }
 /* USER CODE END 4 */
