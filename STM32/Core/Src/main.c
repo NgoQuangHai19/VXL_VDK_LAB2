@@ -224,24 +224,6 @@ static void MX_GPIO_Init(void)
 
 }
 
-/* USER CODE BEGIN 4 */
-//void display7SEG(int count){
-// 	  // ma hex display7Seg cua 0 den 10
-// 	  int16_t array[10]={
-// 			0x40,	//0
-// 			0x79,	//1
-// 			0x24,	//2
-// 			0x30,	//3
-// 			0x19,	//4
-// 			0x12,	//5
-// 			0x2,	//6
-// 			0x78,	//7
-// 			0x0,	//8
-// 			0x10	//9
-// 	  };
-//
-// 	  GPIOB->ODR=array[count];
-//   }
 
 void display(GPIO_PinState a, GPIO_PinState b, GPIO_PinState c,
 		GPIO_PinState d, GPIO_PinState e, GPIO_PinState f,GPIO_PinState g) {
@@ -291,54 +273,56 @@ void display7SEG(int state){
         }
 }
 
-// set thoi gian cho led 7 doan
-int counter1 = 50;
-// set thoi gian cho two leds
-int counter2 = 100;
-// set trang thai cho led 7 doan
-int led7seg_status= 0;
-void HAL_TIM_PeriodElapsedCallback ( TIM_HandleTypeDef * htim ){
-	counter1--;
-	counter2--;
-	if(counter2<=0){
-		HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
-		counter2=100;
-	}
-	if (counter1<=0){
-		counter1 = 50;
-		if(led7seg_status == 0){
-			// Trang thai led7segment1: bat ; led7segment2, 3, 4: tat
+const int MAX_LED = 4;
+int index_led = 0;
+int led_buffer [4] = {1 , 2 , 3 , 4};
+void update7SEG ( int index ) {
+    switch ( index ) {
+        case 0:
+            //Display the first 7 SEG with led_buffer [0]
 			HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, 0);
 			HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, 1);
 			HAL_GPIO_WritePin(EN2_GPIO_Port, EN2_Pin, 1);
 			HAL_GPIO_WritePin(EN3_GPIO_Port, EN3_Pin, 1);
-			display7SEG(1);
-		}
-		if(led7seg_status == 1) {
+			display7SEG(led_buffer[index]);
+            break ;
+        case 1:
+            // Display the second 7 SEG with led_buffer [1]
 			HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, 1);
 			HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, 0);
 			HAL_GPIO_WritePin(EN2_GPIO_Port, EN2_Pin, 1);
 			HAL_GPIO_WritePin(EN3_GPIO_Port, EN3_Pin, 1);
-			display7SEG(2);
-		}
-		if(led7seg_status == 2) {
+			display7SEG(led_buffer[index]);
+        	break ;
+        case 2:
+            // Display the third 7 SEG with led_buffer [2]
 			HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, 1);
 			HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, 1);
 			HAL_GPIO_WritePin(EN2_GPIO_Port, EN2_Pin, 0);
 			HAL_GPIO_WritePin(EN3_GPIO_Port, EN3_Pin, 1);
-			display7SEG(3);
-		}
-		if(led7seg_status == 3) {
+			display7SEG(led_buffer[index]);
+        	break ;
+        case 3:
+            // Display the forth 7 SEG with led_buffer [3]
 			HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, 1);
 			HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, 1);
 			HAL_GPIO_WritePin(EN2_GPIO_Port, EN2_Pin, 1);
 			HAL_GPIO_WritePin(EN3_GPIO_Port, EN3_Pin, 0);
-			display7SEG(0);
-		}
-		// doi trang thai cua led 7 doan
-		led7seg_status ++;
-		if(led7seg_status >= 4) led7seg_status = 0;
+			display7SEG(led_buffer[index]);
+            break ;
+        default :
+            break ;}
+}
+
+int counter = 100;
+void HAL_TIM_PeriodElapsedCallback ( TIM_HandleTypeDef * htim ){
+	if (counter <= 0){
+		counter = 100;
+		update7SEG(index_led);
+		index_led ++;
+		if(index_led >= MAX_LED) index_led = 0;
 	}
+	counter --;
 }
 /* USER CODE END 4 */
 
