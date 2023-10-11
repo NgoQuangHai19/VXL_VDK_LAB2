@@ -56,13 +56,14 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+int hour = 15 , minute = 8 , second = 50;
 /* USER CODE END 0 */
 
 /**
   * @brief  The application entry point.
   * @retval int
   */
+
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -94,10 +95,24 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1)
   {
     /* USER CODE END WHILE */
-
+	  second++;
+	      if ( second >= 60) {
+	          second = 0;
+	          minute ++;
+	      }
+	      if( minute >= 60) {
+	          minute = 0;
+	          hour ++;
+	      }
+	      if( hour >=24) {
+	          hour = 0;
+	      }
+	      updateClockBuffer () ;
+	      HAL_Delay (100) ;
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -327,6 +342,13 @@ void HAL_TIM_PeriodElapsedCallback ( TIM_HandleTypeDef * htim ){
 	}
 	counter7Seg--;
 }
+
+void updateClockBuffer (){
+	led_buffer[0] = hour / 10;
+	led_buffer[1] = hour - 10 * ( hour / 10) ;
+	led_buffer[2] = minute / 10;
+	led_buffer[3] = minute - 10 * (minute / 10);
+ }
 /* USER CODE END 4 */
 
 /**
