@@ -59,16 +59,26 @@ static void MX_TIM2_Init(void);
 int hour = 15 , minute = 8 , second = 50;
 int timer0_counter = 0;
 int timer0_flag = 0;
+int timer1_counter = 0;
+int timer1_flag = 0;
 int TIMER_CYCLE	= 10;
 
 void setTimer0(int duration){
 	timer0_counter = duration  / TIMER_CYCLE;
 	timer0_flag = 0;
 }
+void setTimer1(int duration){
+	timer1_counter = duration  / TIMER_CYCLE;
+	timer1_flag = 0;
+}
 void timerRun(){
 	if(timer0_counter > 0){
 		timer0_counter--;
 		if(timer0_counter == 0) timer0_flag = 1;
+	}
+	if(timer1_counter > 0){
+		timer1_counter--;
+		if(timer1_counter == 0) timer1_flag = 1;
 	}
 }
 /* USER CODE END 0 */
@@ -109,30 +119,37 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  setTimer0 (1000) ;
+
+  //Set timer for 7ledSeg
+  setTimer0(1000);
+  //Set timer for DOT
+  setTimer1(1000);
+  int index = 0;
   while (1)
   {
     /* USER CODE END WHILE */
 
 	  if(timer0_flag==1){
-	  		  setTimer0(2000);
-	  		  HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
-	  }
-//	  second++;
-//	      if ( second >= 60) {
-//	          second = 0;
-//	          minute ++;
-//	      }
-//	      if( minute >= 60) {
-//	          minute = 0;
-//	          hour ++;
-//	      }
-//	      if( hour >=24) {
-//	          hour = 0;
-//	      }
-//	    updateClockBuffer () ;
-
+		  setTimer0(1000);
+		  second++;
+		  if ( second >= 60) {
+			  second = 0;
+			  minute ++;
+		  }
+		  if( minute >= 60) {
+			  minute = 0;
+			  hour ++;
+		  }
+		  if( hour >=24) {
+			  hour = 0;
+		  }
+		  updateClockBuffer();
     /* USER CODE BEGIN 3 */
+	  }
+	  if(timer1_flag == 1){
+		  setTimer1(1000);
+		  HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
+	  }
   }
   /* USER CODE END 3 */
 }
