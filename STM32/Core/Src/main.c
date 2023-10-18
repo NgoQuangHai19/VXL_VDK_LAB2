@@ -57,6 +57,20 @@ static void MX_TIM2_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 int hour = 15 , minute = 8 , second = 50;
+int timer0_counter = 0;
+int timer0_flag = 0;
+int TIMER_CYCLE	= 10;
+
+void setTimer0(int duration){
+	timer0_counter = duration  / TIMER_CYCLE;
+	timer0_flag = 0;
+}
+void timerRun(){
+	if(timer0_counter > 0){
+		timer0_counter--;
+		if(timer0_counter == 0) timer0_flag = 1;
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -95,24 +109,29 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
+  setTimer0 (1000) ;
   while (1)
   {
     /* USER CODE END WHILE */
-	  second++;
-	      if ( second >= 60) {
-	          second = 0;
-	          minute ++;
-	      }
-	      if( minute >= 60) {
-	          minute = 0;
-	          hour ++;
-	      }
-	      if( hour >=24) {
-	          hour = 0;
-	      }
-	      updateClockBuffer () ;
-	      HAL_Delay (100) ;
+
+	  if(timer0_flag==1){
+	  		  setTimer0(2000);
+	  		  HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+	  }
+//	  second++;
+//	      if ( second >= 60) {
+//	          second = 0;
+//	          minute ++;
+//	      }
+//	      if( minute >= 60) {
+//	          minute = 0;
+//	          hour ++;
+//	      }
+//	      if( hour >=24) {
+//	          hour = 0;
+//	      }
+//	    updateClockBuffer () ;
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -329,26 +348,29 @@ void update7SEG ( int index ) {
             break ;}
 }
 
-int counter7Seg = 25;
-void HAL_TIM_PeriodElapsedCallback ( TIM_HandleTypeDef * htim ){
-	if (counter7Seg <= 0){
-		counter7Seg = 25;
-		update7SEG(index_led);
-		index_led ++;
-		if(index_led >= MAX_LED) {
-			index_led = 0;
-			HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
-		}
-	}
-	counter7Seg--;
-}
-
 void updateClockBuffer (){
 	led_buffer[0] = hour / 10;
 	led_buffer[1] = hour - 10 * ( hour / 10) ;
 	led_buffer[2] = minute / 10;
 	led_buffer[3] = minute - 10 * (minute / 10);
  }
+
+//int counter7Seg = 25;
+void HAL_TIM_PeriodElapsedCallback ( TIM_HandleTypeDef * htim ){
+	timerRun();
+//	if (counter7Seg <= 0){
+//		counter7Seg = 25;
+//		update7SEG(index_led);
+//		index_led ++;
+//		if(index_led >= MAX_LED) {
+//			index_led = 0;
+//			HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
+//		}
+//	}
+//	counter7Seg--;
+}
+
+
 /* USER CODE END 4 */
 
 /**
