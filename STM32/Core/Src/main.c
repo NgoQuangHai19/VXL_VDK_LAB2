@@ -124,7 +124,7 @@ int main(void)
   setTimer0(1000);
   //Set timer for DOT
   setTimer1(1000);
-  int index = 0;
+  int index_led = 0;
   while (1)
   {
     /* USER CODE END WHILE */
@@ -144,6 +144,9 @@ int main(void)
 			  hour = 0;
 		  }
 		  updateClockBuffer();
+		  update7SEG(index_led);
+		  index_led++;
+		  if(index_led >= 4) index_led = 0;
     /* USER CODE BEGIN 3 */
 	  }
 	  if(timer1_flag == 1){
