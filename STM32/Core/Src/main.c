@@ -63,6 +63,8 @@ int timer1_counter = 0;
 int timer1_flag = 0;
 int timer2_counter = 0;
 int timer2_flag = 0;
+int timer3_counter = 0;
+int timer3_flag = 0;
 int TIMER_CYCLE	= 10;
 
 void setTimer0(int duration){
@@ -77,6 +79,10 @@ void setTimer2(int duration){
 	timer2_counter = duration  / TIMER_CYCLE;
 	timer2_flag = 0;
 }
+void setTimer3(int duration){
+	timer3_counter = duration  / TIMER_CYCLE;
+	timer3_flag = 0;
+}
 void timerRun(){
 	if(timer0_counter > 0){
 		timer0_counter--;
@@ -89,6 +95,10 @@ void timerRun(){
 	if(timer2_counter > 0){
 		timer2_counter--;
 		if(timer2_counter == 0) timer2_flag = 1;
+	}
+	if(timer3_counter > 0){
+		timer3_counter--;
+		if(timer3_counter == 0) timer3_flag = 1;
 	}
 }
 
@@ -440,8 +450,7 @@ void updateLedMatrix(int index) {
 }
 
 void updateMatrix_buffer(){
-
-	    matrix_buffer[0] = (matrix_buffer[0] << 1|matrix_buffer[1] >> 7);
+	    matrix_buffer[0] = (matrix_buffer[0] << 1|matrix_buffer[0] >> 7);
 		matrix_buffer[1] = (matrix_buffer[1] << 1|matrix_buffer[1] >> 7);
 		matrix_buffer[2] = (matrix_buffer[2] << 1|matrix_buffer[2] >> 7);
 		matrix_buffer[3] = (matrix_buffer[3] << 1|matrix_buffer[3] >> 7);
@@ -493,7 +502,8 @@ int main(void)
     //Set timer for DOT
     setTimer1(100);
     //Set timer for led matrix
-    setTimer2 (100);
+    setTimer2(100);
+    setTimer3(800);
     int index_led = 0;
     while (1)
     {
@@ -517,15 +527,20 @@ int main(void)
     	  		  if(index_led >= 4) index_led = 0;
     	  }
     	  if(timer1_flag == 1){
-    		  setTimer1(1000);
-    		  HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
-    		  HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+    		  	  setTimer1(1000);
+    		  	  HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
+    		  	  HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
     	  }
     	  if(timer2_flag == 1){
-    		  setTimer2(200);
-    		  updateLedMatrix(index_led_matrix);
-    		  index_led_matrix ++;
-    		  if(index_led_matrix == MAX_LED_MATRIX) index_led_matrix = 0;
+    		  	  setTimer2(100);
+    		  	  updateLedMatrix(index_led_matrix);
+    		  	  index_led_matrix ++;
+    		  	  if(index_led_matrix == MAX_LED_MATRIX) index_led_matrix = 0;
+    	  }
+    	  if(timer3_flag == 1 )// control animation led matrix
+    	  {
+    	  		    updateMatrix_buffer();
+    	  			setTimer3(800);
     	  }
     }
       /* USER CODE END WHILE */
